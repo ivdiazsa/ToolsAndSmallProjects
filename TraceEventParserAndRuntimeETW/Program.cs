@@ -69,8 +69,10 @@ namespace TraceEventParserAndRuntimeETW
             {
                 XmlAttributeCollection templateAttrs = node.Attributes;
                 string templateName = templateAttrs["tid"].Value;
-                // Check for repeated keys here.
-                TemplatesDict.Add(templateName, new List<ManifestNodeData>());
+
+                if (!TemplatesDict.TryAdd(templateName, new List<ManifestNodeData>()))
+                    return ;
+
                 LastEntryAdded = templateName;
             }
 
