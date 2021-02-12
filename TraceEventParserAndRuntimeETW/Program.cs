@@ -28,7 +28,9 @@ namespace TraceEventParserAndRuntimeETW
         public string InType { get; set; }
         public string OutType { get; set; }
 
-        public ManifestNodeData(string name = "", string inType = "", string outType = "")
+        public ManifestNodeData(string name = "<no-name>",
+                                string inType = "<no-intype>",
+                                string outType = "<no-outtype>")
         {
             Name = name;
             InType = inType;
@@ -151,6 +153,30 @@ namespace TraceEventParserAndRuntimeETW
         {
             string currentDir = Directory.GetCurrentDirectory();
             string outputFilePath = Path.Combine(currentDir, "manifestParsed.txt");
+
+            using (StreamWriter outputFile = new StreamWriter(outputFilePath))
+            {
+                foreach (KeyValuePair<string, List<ManifestNodeData>> entry in TemplatesDict)
+                {
+                    var attrNamesSb = new StringBuilder("{ ");
+                    var attrTypesSb = new StringBuilder("{ ");
+
+                    outputFile.WriteLine(entry.Key);
+
+                    foreach (ManifestNodeData attr in entry.Value)
+                    {
+                        attrNamesSb.AppendFormat("{0}, ", attr.Name);
+                        attrTypesSb.AppendFormat("{0}, ", attr.typesToString());
+                    }
+
+                    attrNamesSb.Append("}");
+                    attrTypesSb.Append("}");
+
+                    outputFile.WriteLine(attrNamesSb.ToString());
+                    outputFile.WriteLine(attrTypesSb.ToString());
+                    outputFile.Write("\n");
+                }
+            }
         }
 
         public int AnalyzeTemplatesSubset()
@@ -164,7 +190,8 @@ namespace TraceEventParserAndRuntimeETW
             }
 
             ProcessNodeList(rootNodesList);
-            PrintDict();
+            // PrintDict();
+            ExportToTxtFile();
             return 0;
         }
 
@@ -291,8 +318,37 @@ namespace TraceEventParserAndRuntimeETW
     {
         static void Main(string[] args)
         {
-            XMLManifestRun(args[0]);
+            if (args.Length <= 0)
+            {
+                ShowHelp();
+                return ;
+            }
+
+            for (uint i = 0; i < args.Length; i++)
+            {
+                switch (args[i])
+                {
+                    case "-help":
+                        ShowHelp();
+                        break;
+                    case "-analyzeETW":
+                        XMLManifestRun(args[++i]);
+                        break;
+                    case "-analyzeTraceEventParser":
+                        PerfViewParserRun(args[++i]);
+                        break;
+                    default:
+                        throw new Exception($"Unexpected argument: {args[i]}");
+                }
+            }
+
+            // XMLManifestRun(args[0]);
             // PerfViewParserRun(args[0]);
+        }
+
+        static void ShowHelp()
+        {
+            Console.WriteLine("Help text will go here!");
         }
 
         static void XMLManifestRun(string fileName)
