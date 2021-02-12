@@ -51,14 +51,14 @@ namespace TraceEventParserAndRuntimeETW
     public class ETWManifestAnalyzer
     {
         private XmlDocument SubsetDocument;
-        private Dictionary<string, List<ManifestNodeData>> TemplatesDict;
+        private SortedDictionary<string, List<ManifestNodeData>> TemplatesDict;
         private string LastEntryAdded;
 
         public ETWManifestAnalyzer(string filename)
         {
             SubsetDocument = new XmlDocument();
             SubsetDocument.Load(filename);
-            TemplatesDict = new Dictionary<string, List<ManifestNodeData>>();
+            TemplatesDict = new SortedDictionary<string, List<ManifestNodeData>>();
             LastEntryAdded = "";
         }
 
@@ -203,14 +203,14 @@ namespace TraceEventParserAndRuntimeETW
         private string[] Data;
         private int TotalLines;
 
-        private Dictionary<string, string> ClassesPayloadNames;
+        private SortedDictionary<string, string> ClassesPayloadNames;
 
         public ClrTraceEventParserAnalyzer(string filePath)
         {
             Data = File.ReadAllLines(filePath);
             LineIndex = 0;
             TotalLines = Data.Length;
-            ClassesPayloadNames = new Dictionary<string, string>();
+            ClassesPayloadNames = new SortedDictionary<string, string>();
         }
 
         private string GetClassName(string classDefLine)
